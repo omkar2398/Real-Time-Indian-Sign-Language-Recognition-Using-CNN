@@ -15,27 +15,37 @@ classifier = Sequential()
 
 # First convolution layer and pooling
 classifier.add(Convolution2D(
-    32, (3, 3), input_shape=(sz, sz, 1), activation='relu'))
+    64, (3, 3), input_shape=(sz, sz, 1), activation='relu'))
 classifier.add(MaxPooling2D(pool_size=(2, 2)))
+
 # Second convolution layer and pooling
-classifier.add(Convolution2D(32, (3, 3), activation='relu'))
-# input_shape is going to be the pooled feature maps from the previous convolution layer
+classifier.add(Convolution2D(64, (3, 3), activation='relu'))
 classifier.add(MaxPooling2D(pool_size=(2, 2)))
-#classifier.add(Convolution2D(32, (3, 3), activation='relu'))
-# input_shape is going to be the pooled feature maps from the previous convolution layer
-#classifier.add(MaxPooling2D(pool_size=(2, 2)))
+
+# third convolution layer and pooling
+classifier.add(Convolution2D(64, (3, 3), activation='relu'))
+classifier.add(MaxPooling2D(pool_size=(2, 2)))
+
+# # fourth convolution layer and pooling
+# classifier.add(Convolution2D(32, (3, 3), activation='relu'))
+# classifier.add(MaxPooling2D(pool_size=(2, 2)))
 
 # Flattening the layers
 classifier.add(Flatten())
 
 # Adding a fully connected layer
+
+# classifier.add(Dense(units=128, activation='relu'))
+# classifier.add(Dropout(0.5))
+
 classifier.add(Dense(units=128, activation='relu'))
-classifier.add(Dropout(0.40))
-classifier.add(Dense(units=96, activation='relu'))
-classifier.add(Dropout(0.40))
-classifier.add(Dense(units=64, activation='relu'))
+classifier.add(Dropout(0.5))
+
+classifier.add(Dense(units=7, activation='relu'))
+classifier.add(Dropout(0.5))
+
 # softmax for more than 2 outputs neuron
-classifier.add(Dense(units=2, activation='softmax'))
+classifier.add(Dense(units=7, activation='softmax'))
 
 # Compiling the CNN
 classifier.compile(optimizer='adam', loss='categorical_crossentropy', metrics=[
@@ -54,7 +64,7 @@ train_datagen = ImageDataGenerator(
 
 test_datagen = ImageDataGenerator(rescale=1./255)
 
-training_set = train_datagen.flow_from_directory('myProcessData/train',
+training_set = train_datagen.flow_from_directory('myProcessdata/train',
                                                  target_size=(sz, sz),
                                                  batch_size=5,
                                                  color_mode='grayscale',
@@ -67,16 +77,16 @@ test_set = test_datagen.flow_from_directory('myProcessData/test',
                                             class_mode='categorical')
 classifier.fit_generator(
     training_set,
-    steps_per_epoch=280,  # No of images in training set
+    steps_per_epoch=825,  # No of images in training set
     epochs=3,
     validation_data=test_set,
-    validation_steps=120)  # No of images in test set
+    validation_steps=271)  # No of images in test set
 
 
 # Saving the model
 model_json = classifier.to_json()
-with open("model_uv.json", "w") as json_file:
+with open("model_cilouv.json", "w") as json_file:
     json_file.write(model_json)
 print('Model Saved')
-classifier.save_weights('model_uv.h5')
+classifier.save_weights('model_cilouv.h5')
 print('Model saved')
