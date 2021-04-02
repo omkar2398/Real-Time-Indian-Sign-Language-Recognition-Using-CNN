@@ -12,12 +12,12 @@ if not os.path.exists("myProcessData/train"):
     os.makedirs("myProcessData/train")
 if not os.path.exists("myProcessData/test"):
     os.makedirs("myProcessData/test")
-path = "my_data/train"
+path = "myData/train"
 output = "myProcessData"
 a = ['label']
 
-for i in range(64*64):
-    a.append("pixel"+str(i))
+# for i in range(path):
+#     a.append("pixel"+str(i))
 #outputLine = a.tolist()
 
 label = 0
@@ -33,7 +33,7 @@ for (dirpath, dirnames, filenames) in os.walk(path):
                 os.makedirs(output+"/train/"+dirname)
             if not os.path.exists(output+"/test/"+dirname):
                 os.makedirs(output+"/test/"+dirname)
-            num = 0.70*len(files)
+            num = 0.75*len(files)
             # num = 100000000000000000
             i = 0
             for file in files:
