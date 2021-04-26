@@ -15,16 +15,10 @@ class Application:
         self.root = tk.Tk()
         self.root.title("Indian Sign Language Recognition")
         self.root.config(background="#000")
-        self.root.protocol('WM_DELETE_WINDOW', self.destructor)
+        self.root.protocol("WM_DELETE_WINDOW", self.destructor)
 
-        # Graphics window
-        # imageFrame = tk.Frame(self.root, width=600, height=500)
-        # imageFrame.grid(row=0, column=0, padx=0, pady=0)
+        self.directory = "model/"
 
-        self.directory = 'model/'
-
-        # self.panel = tk.Label(imageFrame)
-        # self.panel.grid(row=0, column=0)
         self.vs = cv2.VideoCapture(cv2.CAP_DSHOW)
         # self.vs.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         # self.vs.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
@@ -32,14 +26,14 @@ class Application:
         self.current_image = None
         self.current_image2 = None
 
-        self.json_file = open(self.directory+"model_cilouv.json", "r")
+        self.json_file = open(self.directory + "model_az.json", "r")
         self.model_json = self.json_file.read()
         self.json_file.close()
         self.loaded_model = model_from_json(self.model_json)
-        self.loaded_model.load_weights(self.directory+"model_cilouv.h5")
+        self.loaded_model.load_weights(self.directory + "model_az.h5")
 
         self.ct = {}
-        self.ct['blank'] = 0
+        self.ct["blank"] = 0
         self.blank_flag = 0
         for i in ascii_uppercase:
             self.ct[i] = 0
@@ -56,30 +50,27 @@ class Application:
         def clearSentence():
             self.str = ""
 
-        # self.panel = tk.Label(self.root)
-        # self.panel.place(width=640, height=640)
-        # self.panel.grid(row=0, column=0, padx=(200, 10), pady=(10, 0))
         self.root.geometry("900x1100")
         self.panel = tk.Label(self.root)
         self.panel.place(x=135, y=10, width=640, height=480)
-        self.panel2 = tk.Label(self.root)  # initialize image panel
-        self.panel2.place(x=950, y=20, width=310, height=310)  # white box
+        self.panel2 = tk.Label(self.root)
+        self.panel2.place(x=950, y=20, width=310, height=310)
 
-        self.panel3 = tk.Label(self.root)  # Current SYmbol
+        self.panel3 = tk.Label(self.root)
         self.panel3.place(x=420, y=560)
 
         self.T1 = tk.Label(self.root)
         self.T1.place(x=300, y=560)
         self.T1.config(text="Character :", font=("Raleway", 10, "bold"))
 
-        self.panel4 = tk.Label(self.root)  # Word
+        self.panel4 = tk.Label(self.root)
         self.panel4.place(x=420, y=600)
 
         self.T2 = tk.Label(self.root)
         self.T2.place(x=300, y=600)
         self.T2.config(text="Word :", font=("Raleway", 10, "bold"))
 
-        self.panel5 = tk.Label(self.root)  # Sentence
+        self.panel5 = tk.Label(self.root)
         self.panel5.place(x=420, y=640)
 
         self.T3 = tk.Label(self.root)
@@ -92,8 +83,7 @@ class Application:
         clear_button = tk.Button(self.root, text="Clear", command=clearWord)
         clear_button.place(x=720, y=600)
 
-        clear_button1 = tk.Button(
-            self.root, text="Clear", command=clearSentence)
+        clear_button1 = tk.Button(self.root, text="Clear", command=clearSentence)
         clear_button1.place(x=720, y=640)
 
         self.str = ""
@@ -107,12 +97,12 @@ class Application:
 
         if ok:
             cv2image = cv2.flip(frame, 1)
-            x1 = int(0.5*frame.shape[1])
+            x1 = int(0.5 * frame.shape[1])
             y1 = 10
-            x2 = frame.shape[1]-10
-            y2 = int(0.5*frame.shape[1])
+            x2 = frame.shape[1] - 10
+            y2 = int(0.5 * frame.shape[1])
 
-            cv2.rectangle(cv2image, (x1, y1+1), (x2, y2-1), (255, 0, 0), 1)
+            cv2.rectangle(cv2image, (x1, y1 + 1), (x2, y2 - 1), (255, 0, 0), 1)
 
             cv2image = cv2.cvtColor(cv2image, cv2.COLOR_BGR2RGBA)
 
@@ -121,16 +111,16 @@ class Application:
             self.panel.imgtk = imgtk
             self.panel.config(image=imgtk)
 
-            cv2image = cv2image[y1:x1+1, y2:x2-1]
-            # cv2image = cv2image[y1:y2+1, x1:x2+1]
+            cv2image = cv2image[y1 : x1 + 1, y2 : x2 - 1]
+
             cv2image = cv2.resize(cv2image, (128, 128))
 
             gray = cv2.cvtColor(cv2image, cv2.COLOR_BGR2GRAY)
             blur = cv2.GaussianBlur(gray, (5, 5), 0)
-            # th3 = cv2.adaptiveThreshold(
-            #     blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
+
             ret, res = cv2.threshold(
-                blur, 90, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+                blur, 90, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU
+            )
 
             self.predict(res)
 
@@ -147,38 +137,41 @@ class Application:
     def predict(self, test_image):
         test_image = cv2.resize(test_image, (128, 128))
         result = self.loaded_model.predict(test_image.reshape(1, 128, 128, 1))
+
         prediction = {}
-        prediction['blank'] = result[0][0]
-        inde = 1
-        ascii_uppercase = ['C', 'I', 'L', 'O', 'U', 'V']
+        prediction["blank"] = result[0][0]
+        index = 1
+
         for i in ascii_uppercase:
-            prediction[i] = result[0][inde]
-            inde += 1
+            prediction[i] = result[0][index]
+            index += 1
+
         # LAYER 1
-        prediction = sorted(prediction.items(),
-                            key=operator.itemgetter(1), reverse=True)
+        prediction = sorted(
+            prediction.items(), key=operator.itemgetter(1), reverse=True
+        )
         self.current_symbol = prediction[0][0]
 
-        if(self.current_symbol == 'blank'):
+        if self.current_symbol == "blank":
             for i in ascii_uppercase:
                 self.ct[i] = 0
         self.ct[self.current_symbol] += 1
-        if(self.ct[self.current_symbol] > 60):
+        if self.ct[self.current_symbol] > 20:
             for i in ascii_uppercase:
                 if i == self.current_symbol:
                     continue
                 tmp = self.ct[self.current_symbol] - self.ct[i]
                 if tmp < 0:
                     tmp *= -1
-                if tmp <= 15:
-                    self.ct['blank'] = 0
+                if tmp <= 20:
+                    self.ct["blank"] = 0
                     for i in ascii_uppercase:
                         self.ct[i] = 0
                     return
-            self.ct['blank'] = 0
+            self.ct["blank"] = 0
             for i in ascii_uppercase:
                 self.ct[i] = 0
-            if self.current_symbol == 'blank':
+            if self.current_symbol == "blank":
                 if self.blank_flag == 0:
                     self.blank_flag = 1
                     if len(self.str) > 0:
@@ -186,7 +179,7 @@ class Application:
                     self.str += self.word
                     self.word = ""
             else:
-                if(len(self.str) > 16):
+                if len(self.str) > 16:
                     self.str = ""
                 self.blank_flag = 0
                 self.word += self.current_symbol
